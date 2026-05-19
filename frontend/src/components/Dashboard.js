@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
-import {
-  FileVideo, CheckCircle2, XCircle, Clock, 
-  BarChart2, ArrowRight, MoreHorizontal, PlayCircle, 
-  Eye, ExternalLink, Download, Target, Activity, Zap
-} from 'lucide-react';
 
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  BarChart2,
+  ArrowRight,
+  MoreHorizontal,
+  PlayCircle,
+  Eye,
+  Download,
+  Target,
+  Activity,
+  Zap
+} from 'lucide-react';
 const Dashboard = ({ history, setView, setAnalysisData }) => {
   const [openMenuId, setOpenMenuId] = useState(null);
 

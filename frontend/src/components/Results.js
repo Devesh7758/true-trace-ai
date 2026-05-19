@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Download, FileText, Activity, AlertTriangle, RefreshCw, CheckCircle2, UserCheck } from 'lucide-react';
+import {
+  ShieldCheck,
+  Download,
+  Activity,
+  AlertTriangle,
+  RefreshCw,
+  CheckCircle2,
+  UserCheck
+} from 'lucide-react';
 
 const Results = ({ data, onReset }) => {
   const [isRequesting, setIsRequesting] = useState(false);

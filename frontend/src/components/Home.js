@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Zap, Target, Cpu, ArrowRight, Activity } from 'lucide-react';
+import { Zap, Target, Cpu, ArrowRight, Activity } from 'lucide-react';
 
 const Home = ({ onUploadClick }) => {
   return (
