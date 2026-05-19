@@ -4,7 +4,6 @@ dns.setDefaultResultOrder("ipv4first");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
 require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
@@ -16,30 +15,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
+// Root Route
+app.get("/", (req, res) => {
+  res.send("TrueTrace Backend API Running Successfully 🚀");
+});
+
+// Database Connection
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() =>
-    console.log(
-      "📁 Connected to Cloud MongoDB Atlas Engine"
-    )
-  )
-  .catch((err) =>
-    console.error(
-      "Database connection exception:",
-      err
-    )
-  );
+  .then(() => {
+    console.log("📁 Connected to Cloud MongoDB Atlas Engine");
+  })
+  .catch((err) => {
+    console.error("Database connection exception:", err);
+  });
 
-// Routes
+// API Routes
 app.use("/api/auth", authRoutes);
-
 app.use("/api/reports", reportRoutes);
 
+// Server Listener
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () =>
-  console.log(
-    `🚀 Node Engine active on port ${PORT}`
-  )
-);
+app.listen(PORT, () => {
+  console.log(`🚀 Node Engine active on port ${PORT}`);
+});
