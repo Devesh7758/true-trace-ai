@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: oklch(0.98 0.003 250);
+  --foreground: oklch(0.15 0.015 250);
+  --card: oklch(1 0 0);
+  --primary: oklch(0.5 0.18 255);
+  --muted-foreground: oklch(0.45 0.015 250);
+  --border: oklch(0.92 0.005 250);
+  --radius: 0.75rem;
+}
+
+body {
+  font-family: 'Geist', sans-serif !important;
+  background-color: #F8FAFC;
+  color: #1E293B;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.pro-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.02);
+}
+
+/* Custom gauge animation */
+.gauge-path {
+  transition: stroke-dasharray 1s ease-out;
+}
