@@ -1,7 +1,7 @@
 const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
-    : "https://true-trace-ai.onrender.com/api";
+    : "https://true-trace-ai-1.onrender.com";
 
 export default API_BASE_URL;
 
