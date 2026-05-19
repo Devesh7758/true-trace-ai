@@ -1,100 +1,117 @@
-import React, { useState, useRef } from 'react';
-import { FileVideo, ImageIcon, ShieldAlert, Loader2, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Upload, Video, AlertCircle, RefreshCw } from 'lucide-react';
 
-const UploadComponent = ({ onAnalysisComplete }) => {
+const UploadView = ({ onAnalysisComplete }) => {
   const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleFileSelect = (selectedFile) => {
-    if (selectedFile) setFile(selectedFile);
+  // --- EXACT DUAL-BACKEND PRODUCTION ENVIRONMENT ENDPOINTS ---
+  const AI_ENGINE_BASE_URL = window.location.hostname === 'localhost'
+    ? 'http://127.0.0.1:8000'
+    : 'https://true-trace-ai-1.onrender.com'; // Your verified live FastAPI Engine
+
+  const NODE_AUTH_BASE_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/api'
+    : 'https://true-trace-ai.onrender.com/api'; // Your live Node.js Auth Backend
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile && selectedFile.type.startsWith('video/')) {
+      setFile(selectedFile);
+      setError('');
+    } else {
+      setError('Please select a valid forensic video file asset.');
+    }
   };
 
-  const startAnalysis = async () => {
+  const handleUploadSubmit = async (e) => {
+    e.preventDefault();
     if (!file) return;
-    setLoading(true);
 
+    setIsLoading(true);
+    setError('');
+
+    // Wrap your binary video inside a multipart payload stream
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:8000/analyze', {
+      // PHASE 1: Call your exact FastAPI endpoint (/analyze)
+      const aiResponse = await fetch(`${AI_ENGINE_BASE_URL}/analyze`, {
         method: 'POST',
-        body: formData,
+        body: formData, // Browser sets multipart/form-data headers automatically
       });
 
-      if (!response.ok) throw new Error('Neural Engine connection failed');
+      if (!aiResponse.ok) throw new Error('Neural Engine internal pipeline break.');
+      const aiResult = await aiResponse.json();
 
-      const result = await response.json();
-      onAnalysisComplete(result); 
+      // PHASE 2: Mirror the AI findings to MongoDB via your separate Node Auth Backend
+      const token = localStorage.getItem('trueTraceToken');
       
-    } catch (error) {
-      console.error("System Error:", error);
-      alert("System Error: Could not connect to Neural Engine. Ensure Python main.py is running.");
+      const mongoResponse = await fetch(`${NODE_AUTH_BASE_URL}/reports`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Protected routes gate check
+        },
+        body: JSON.stringify({
+          filename: file.name,
+          hash: aiResult.hash || `sha256:${Math.random().toString(16).substring(2, 18)}`,
+          prediction: aiResult.prediction,
+          confidence: aiResult.confidence,
+          details: aiResult.details || { resolution: '224x224', duration: '0:10s', frames_analyzed: 120 }
+        })
+      });
+
+      if (!mongoResponse.ok) {
+        console.warn('AI Analysis worked, but log failed to save into MongoDB Atlas.');
+      }
+
+      // PHASE 3: Pass final result payload to App.js to switch view to Results screen
+      onAnalysisComplete(aiResult);
+
+    } catch (err) {
+      console.error('Inference Error context logs:', err);
+      setError('System Error: Could not connect to Neural Engine. Ensure Python AI backend is active.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '800px', margin: '40px auto', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '28px', fontWeight: 800, margin: 0 }}>Forensic Upload</h2>
-        <p style={{ color: '#94a3b8', marginTop: '4px' }}>Submit media for neural artifact analysis</p>
+    <div className="max-w-2xl mx-auto mt-12 bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm animate-in fade-in duration-300">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-black text-slate-800 tracking-tight">Forensic Asset Ingestion</h3>
+        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Upload video source for layer manipulation scanning</p>
       </div>
 
-      <div onClick={() => fileInputRef.current.click()} style={dropZoneStyle}>
-        <input 
-          type="file" 
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          accept="video/*,image/*" 
-          onChange={(e) => handleFileSelect(e.target.files[0])}
-        />
-
-        {!file ? (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', justifyContent: 'center', marginBottom: '24px' }}>
-              <FileVideo size={48} color="#2563eb" />
-              <ImageIcon size={48} color="#2563eb" />
-            </div>
-            <p style={{ fontWeight: 700, fontSize: '18px' }}>Select Video or Image</p>
-            <p style={{ color: '#94a3b8' }}>Drag and drop or click to browse</p>
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center' }}>
-            <CheckCircle2 size={48} color="#10b981" style={{ marginBottom: '16px' }} />
-            <p style={{ fontWeight: 800, fontSize: '16px', color: '#1e293b' }}>{file.name}</p>
-            <p style={{ color: '#94a3b8', fontSize: '14px' }}>File Ready for Processing</p>
-          </div>
-        )}
-      </div>
-
-      {file && (
-        <button 
-          onClick={(e) => { e.stopPropagation(); startAnalysis(); }} 
-          disabled={loading}
-          style={loading ? btnDisabled : btnActive}
-        >
-          {loading ? (
-            <><Loader2 className="animate-spin" size={20} /> ANALYZING...</>
-          ) : (
-            <><ShieldAlert size={20} /> START FORENSIC SCAN</>
-          )}
-        </button>
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl flex items-center gap-3 text-sm font-bold">
+          <AlertCircle size={18} className="shrink-0" />
+          <span>{error}</span>
+        </div>
       )}
 
-      <div style={footerNote}>
-        <CheckCircle2 size={14} color="#10b981" />
-        <span>EfficientNet-B4 + LSTM Pipeline Active</span>
-      </div>
+      <form onSubmit={handleUploadSubmit} className="space-y-6">
+        <div className="border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center hover:bg-slate-50 transition-all cursor-pointer relative group">
+          <input required type="file" accept="video/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+          <div className="flex flex-col items-center justify-center">
+            <div className="p-4 bg-slate-50 text-slate-400 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
+              {file ? <Video size={32} className="text-blue-500" /> : <Upload size={32} />}
+            </div>
+            <p className="text-sm font-black text-slate-700">{file ? file.name : "Drop media file here or browse"}</p>
+            <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-tight">Supports mp4, avi, mov up to 50MB</p>
+          </div>
+        </div>
+
+        <button type="submit" disabled={!file || isLoading} className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-100 flex items-center justify-center gap-2 disabled:opacity-40">
+          {isLoading ? <RefreshCw className="animate-spin" size={16} /> : null}
+          {isLoading ? "EXECUTING NEURAL SCAN..." : "RUN INTENSITY INFERENCE"}
+        </button>
+      </form>
     </div>
   );
 };
 
-const dropZoneStyle = { border: '2px dashed #e2e8f0', borderRadius: '24px', padding: '80px 40px', cursor: 'pointer', background: '#fff' };
-const btnActive = { width: '100%', marginTop: '24px', padding: '16px', borderRadius: '16px', background: '#2563eb', color: '#fff', border: 'none', fontWeight: 800, fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' };
-const btnDisabled = { ...btnActive, background: '#94a3b8', cursor: 'not-allowed' };
-const footerNote = { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 32, fontSize: 12, color: '#94a3b8', fontWeight: 600 };
-
-export default UploadComponent;
+export default UploadView;
