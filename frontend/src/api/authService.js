@@ -1,7 +1,9 @@
 const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
-    : "https://your-backend-app.onrender.com/api";
+    : "https://true-trace-ai.onrender.com/api";
+
+export default API_BASE_URL;
 
 export const authService = {
   login: async (email, password) => {
