@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Bell, Search, Settings, User, LogOut, ChevronDown, Activity } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Home from './components/Home';
 import UploadView from './components/Upload';
@@ -6,9 +7,7 @@ import Dashboard from './components/Dashboard';
 import History from './components/History';
 import Results from './components/Results';
 import About from './components/About';
-import Login from './components/Login'; // 1. Import Login
-import { Bell, Search, Settings, User, BarChart3, LogOut, ChevronDown, Activity } from 'lucide-react';
-
+import Login from './components/Login'; 
 function App() {
   // 1. Navigation & Auth State
   const [isLoggedIn, setIsLoggedIn] = useState(false); // New State
