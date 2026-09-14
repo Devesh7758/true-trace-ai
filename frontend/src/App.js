@@ -6,7 +6,6 @@ import Dashboard from './components/Dashboard';
 import History from './components/History';
 import Results from './components/Results';
 import About from './components/About';
-import Login from './components/Login';
 
 import {
   Bell,
@@ -19,58 +18,33 @@ import {
 } from 'lucide-react';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // 1. Set default login state to true to bypass authentication screen
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
-  const [currentView, setCurrentView] =
-    useState('Home');
+  const [currentView, setCurrentView] = useState('Home');
+  const [analysisData, setAnalysisData] = useState(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [history, setHistory] = useState([]);
 
-  const [analysisData, setAnalysisData] =
-    useState(null);
-
-  const [isProfileOpen, setIsProfileOpen] =
-    useState(false);
-
-  const [history, setHistory] =
-    useState([]);
-
-  const handleAnalysisComplete = (
-    data
-  ) => {
+  const handleAnalysisComplete = (data) => {
     const newRecord = {
       id: Date.now(),
-
       filename: data.filename,
-
-      date:
-        new Date().toLocaleDateString(
-          'en-US',
-          {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-          }
-        ),
-
-      prediction:
-        data.prediction,
-
-      confidence:
-        data.confidence,
-
-      details:
-        data.details || {
-          resolution: '1080p',
-          frames_analyzed: 120
-        }
+      date: new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      }),
+      prediction: data.prediction,
+      confidence: data.confidence,
+      details: data.details || {
+        resolution: '1080p',
+        frames_analyzed: 120
+      }
     };
 
-    setHistory((prev) => [
-      newRecord,
-      ...prev
-    ]);
-
+    setHistory((prev) => [newRecord, ...prev]);
     setAnalysisData(data);
-
     setCurrentView('Results');
   };
 
@@ -79,20 +53,14 @@ function App() {
       case 'Home':
         return (
           <Home
-            onUploadClick={() =>
-              setCurrentView(
-                'Forensic Upload'
-              )
-            }
+            onUploadClick={() => setCurrentView('Forensic Upload')}
           />
         );
 
       case 'Forensic Upload':
         return (
           <UploadView
-            onAnalysisComplete={
-              handleAnalysisComplete
-            }
+            onAnalysisComplete={handleAnalysisComplete}
           />
         );
 
@@ -100,9 +68,7 @@ function App() {
         return (
           <Dashboard
             history={history}
-            setView={
-              setCurrentView
-            }
+            setView={setCurrentView}
           />
         );
 
@@ -110,11 +76,7 @@ function App() {
         return (
           <History
             history={history}
-            onUploadClick={() =>
-              setCurrentView(
-                'Forensic Upload'
-              )
-            }
+            onUploadClick={() => setCurrentView('Forensic Upload')}
           />
         );
 
@@ -122,11 +84,7 @@ function App() {
         return (
           <Results
             data={analysisData}
-            onReset={() =>
-              setCurrentView(
-                'Forensic Upload'
-              )
-            }
+            onReset={() => setCurrentView('Forensic Upload')}
           />
         );
 
@@ -136,33 +94,17 @@ function App() {
       default:
         return (
           <Home
-            onUploadClick={() =>
-              setCurrentView(
-                'Forensic Upload'
-              )
-            }
+            onUploadClick={() => setCurrentView('Forensic Upload')}
           />
         );
     }
   };
 
-  if (!isLoggedIn) {
-    return (
-      <Login
-        onLoginSuccess={() =>
-          setIsLoggedIn(true)
-        }
-      />
-    );
-  }
-
   return (
     <div className="flex h-screen bg-[#F8FAFC] font-sans text-slate-900 overflow-hidden selection:bg-blue-100">
       <Sidebar
         currentView={currentView}
-        setCurrentView={
-          setCurrentView
-        }
+        setCurrentView={setCurrentView}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -191,20 +133,14 @@ function App() {
               <Bell size={20} />
 
               <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white">
-                {history.length > 0
-                  ? '1'
-                  : '0'}
+                {history.length > 0 ? '1' : '0'}
               </span>
             </div>
 
             <div className="relative border-l border-slate-100 pl-5">
               <div
                 className="flex items-center gap-3 cursor-pointer group p-1 hover:bg-slate-50 rounded-xl transition-all"
-                onClick={() =>
-                  setIsProfileOpen(
-                    !isProfileOpen
-                  )
-                }
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
               >
                 <div className="flex flex-col text-right hidden sm:flex">
                   <span className="text-sm font-bold text-slate-700 leading-none group-hover:text-blue-600 transition-colors">
@@ -223,9 +159,7 @@ function App() {
                 <ChevronDown
                   size={14}
                   className={`text-slate-300 transition-transform ${
-                    isProfileOpen
-                      ? 'rotate-180'
-                      : ''
+                    isProfileOpen ? 'rotate-180' : ''
                   }`}
                 />
               </div>
@@ -234,8 +168,7 @@ function App() {
                 <div className="absolute right-0 top-14 w-64 bg-white rounded-2xl border border-slate-200 shadow-2xl shadow-slate-200/50 p-2 z-[100] animate-in fade-in zoom-in-95 duration-200">
                   <div className="p-4 border-b border-slate-50 mb-2">
                     <p className="text-sm font-bold text-slate-800 leading-none">
-                      Devesh
-                      Dwivedi
+                      Devesh Dwivedi
                     </p>
 
                     <p className="text-[11px] text-slate-400 mt-1.5 truncate">
@@ -244,37 +177,24 @@ function App() {
                   </div>
 
                   <button className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl flex items-center gap-3 transition-colors">
-                    <User
-                      size={16}
-                      className="text-slate-400"
-                    />
+                    <User size={16} className="text-slate-400" />
                     View Profile
                   </button>
 
                   <button className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl flex items-center gap-3 transition-colors">
-                    <Activity
-                      size={16}
-                      className="text-slate-400"
-                    />
+                    <Activity size={16} className="text-slate-400" />
                     Usage Statistics
                   </button>
 
                   <button className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl flex items-center gap-3 transition-colors">
-                    <Settings
-                      size={16}
-                      className="text-slate-400"
-                    />
+                    <Settings size={16} className="text-slate-400" />
                     Settings
                   </button>
 
                   <div className="h-px bg-slate-100 my-2 mx-2"></div>
 
                   <button
-                    onClick={() =>
-                      setIsLoggedIn(
-                        false
-                      )
-                    }
+                    onClick={() => setIsLoggedIn(false)}
                     className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors"
                   >
                     <LogOut size={16} />
@@ -296,9 +216,7 @@ function App() {
       {isProfileOpen && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() =>
-            setIsProfileOpen(false)
-          }
+          onClick={() => setIsProfileOpen(false)}
         ></div>
       )}
     </div>
