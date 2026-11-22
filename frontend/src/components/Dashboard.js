@@ -55,14 +55,14 @@ const Dashboard = ({ history, setView, setAnalysisData }) => {
         <StatCard label="Avg. Time" val={total > 0 ? "2.3s" : "0.0s"} sub="Active" icon={Clock} color="#f59e0b" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-6" style={{ marginBottom: 32 }}>
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-6" style={{ marginBottom: 32 }}>
         <div style={sectionStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
             <h3 style={{ fontSize: 17, fontWeight: 800 }}>Recent Activity</h3>
             <button onClick={() => setView('History')} style={viewAllBtnStyle}>View All <ArrowRight size={14} /></button>
           </div>
           <div className="overflow-x-auto">
-          <table style={{ width: '100%', minWidth: 520, borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', minWidth: 440, borderCollapse: 'collapse' }}>
             <thead><tr style={{ borderBottom: '1px solid #f1f5f9' }}>
                 <th style={thStyle}>Video Source</th>
                 <th style={{ ...thStyle, textAlign: 'center' }}>Status</th>
