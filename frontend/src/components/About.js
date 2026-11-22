@@ -9,11 +9,11 @@ const About = () => {
         <div className="inline-block p-4 bg-blue-50 rounded-3xl text-blue-600 mb-6 shadow-sm">
           <Shield size={48} />
         </div>
-        <h1 className="text-4xl font-black text-slate-900 mb-4">About TrueTrace</h1>
+        <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">About TrueTrace</h1>
         <p className="text-lg text-slate-500 font-medium">Advanced AI Video Forensics for the Digital Age</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-8 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-10 sm:mb-16">
         <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center gap-4 mb-4 text-blue-600">
             <Cpu size={24} />
@@ -39,7 +39,7 @@ const About = () => {
         </div>
       </div>
 
-      <div className="bg-slate-900 rounded-3xl p-10 text-white text-center relative overflow-hidden">
+      <div className="bg-slate-900 rounded-3xl p-6 sm:p-10 text-white text-center relative overflow-hidden">
         <div className="absolute top-0 right-0 p-10 opacity-10">
             <Globe2 size={120} />
         </div>

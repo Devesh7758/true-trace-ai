@@ -57,7 +57,7 @@ const UploadView = ({ onAnalysisComplete }) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm animate-in fade-in duration-300">
+    <div className="max-w-2xl mx-auto mt-4 sm:mt-12 bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 shadow-sm animate-in fade-in duration-300">
       <div className="text-center mb-8">
         <h3 className="text-2xl font-black text-slate-800 tracking-tight">Forensic Asset Ingestion</h3>
         <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Upload video source for layer manipulation scanning</p>
@@ -71,7 +71,7 @@ const UploadView = ({ onAnalysisComplete }) => {
       )}
 
       <form onSubmit={handleUploadSubmit} className="space-y-6">
-        <div className="border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center hover:bg-slate-50 transition-all cursor-pointer relative group">
+        <div className="border-2 border-dashed border-slate-200 rounded-3xl p-8 sm:p-12 text-center hover:bg-slate-50 transition-all cursor-pointer relative group">
           <input type="file" accept="video/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
           <div className="flex flex-col items-center justify-center">
             <div className="p-4 bg-slate-50 text-slate-400 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">

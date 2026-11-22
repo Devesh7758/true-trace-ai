@@ -40,7 +40,7 @@ const Dashboard = ({ history, setView, setAnalysisData }) => {
 
   return (
     <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', fontFamily: "'Inter', sans-serif" }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style={{ marginBottom: 32 }}>
         <div>
           <h2 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: 0 }}>Dashboard</h2>
           <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>System intelligence overview</p>
@@ -48,20 +48,21 @@ const Dashboard = ({ history, setView, setAnalysisData }) => {
         <button onClick={() => setView('Forensic Upload')} style={primaryBtnStyle}>Analyze New Video</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 32 }}>
-        <StatCard label="Total Scans" val={total} sub="Live Database" icon={BarChart2} color="#2563eb" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5" style={{ marginBottom: 32 }}>
+        <StatCard label="Total Scans" val={total} sub="Saved in this browser" icon={BarChart2} color="#2563eb" />
         <StatCard label="Authentic" val={authenticCount} sub={`${authRate}% Accuracy`} icon={CheckCircle2} color="#10b981" />
         <StatCard label="Detected Fakes" val={fakes} sub={`${100-authRate}% Risk`} icon={XCircle} color="#ef4444" />
         <StatCard label="Avg. Time" val={total > 0 ? "2.3s" : "0.0s"} sub="Active" icon={Clock} color="#f59e0b" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24, marginBottom: 32 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-6" style={{ marginBottom: 32 }}>
         <div style={sectionStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
             <h3 style={{ fontSize: 17, fontWeight: 800 }}>Recent Activity</h3>
             <button onClick={() => setView('History')} style={viewAllBtnStyle}>View All <ArrowRight size={14} /></button>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="overflow-x-auto">
+          <table style={{ width: '100%', minWidth: 520, borderCollapse: 'collapse' }}>
             <thead><tr style={{ borderBottom: '1px solid #f1f5f9' }}>
                 <th style={thStyle}>Video Source</th>
                 <th style={{ ...thStyle, textAlign: 'center' }}>Status</th>
@@ -87,6 +88,7 @@ const Dashboard = ({ history, setView, setAnalysisData }) => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
         <div style={{ ...sectionStyle, textAlign: 'center' }}>
           <h3 style={{ fontSize: 16, fontWeight: 800, textAlign: 'left', marginBottom: 32 }}>Detection Summary</h3>
@@ -100,7 +102,7 @@ const Dashboard = ({ history, setView, setAnalysisData }) => {
       </div>
       
       <div style={sectionStyle}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
           <PerformanceBox label="Accuracy" val="97.2%" icon={Target} bg="#eff6ff" color="#2563eb" />
           <PerformanceBox label="Precision" val="96.8%" icon={CheckCircle2} bg="#f0fdf4" color="#10b981" />
           <PerformanceBox label="Recall" val="95.4%" icon={Activity} bg="#fffbeb" color="#d97706" />
@@ -112,7 +114,7 @@ const Dashboard = ({ history, setView, setAnalysisData }) => {
 };
 
 /* Dashboard Helpers */
-const sectionStyle = { background: '#fff', borderRadius: 24, border: '1px solid #e2e8f0', padding: 32, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', marginBottom: 24 };
+const sectionStyle = { background: '#fff', borderRadius: 24, border: '1px solid #e2e8f0', padding: 'clamp(20px, 4vw, 32px)', minWidth: 0, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', marginBottom: 24 };
 const thStyle = { paddingBottom: 16, fontSize: 11, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' };
 const tdStyle = { padding: '16px 0', display: 'flex', alignItems: 'center', gap: 12 };
 const filenameStyle = { fontSize: 14, fontWeight: 700, color: '#334155', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };

@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 
 // DD.DEV logo: italic heavy wordmark with a blue → violet gradient on a dark pill
-export const DDDevLogo = ({ size = 'md' }) => {
+export const DDDevLogo = ({ size = "md" }) => {
   const sizes = {
-    sm: { text: 'text-sm', pad: 'px-3 py-1.5', radius: 'rounded-lg' },
-    md: { text: 'text-base', pad: 'px-4 py-2', radius: 'rounded-xl' },
-    lg: { text: 'text-2xl', pad: 'px-6 py-3', radius: 'rounded-2xl' },
+    sm: { text: "text-sm", pad: "px-3 py-1.5", radius: "rounded-lg" },
+    md: { text: "text-base", pad: "px-4 py-2", radius: "rounded-xl" },
+    lg: { text: "text-2xl", pad: "px-6 py-3", radius: "rounded-2xl" },
   }[size];
 
   return (
@@ -24,9 +24,13 @@ export const DDDevLogo = ({ size = 'md' }) => {
 };
 
 // "Developed by [DD.DEV]"
-const DevBadge = ({ size = 'md', className = '' }) => (
+const DevBadge = ({ size = "md", className = "", compact = false }) => (
   <div className={`inline-flex items-center gap-3 ${className}`}>
-    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Developed by</span>
+    <span
+      className={`text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ${compact ? "hidden sm:inline" : ""}`}
+    >
+      Developed by
+    </span>
     <DDDevLogo size={size} />
   </div>
 );

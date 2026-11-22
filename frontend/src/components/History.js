@@ -71,8 +71,8 @@ const History = ({ history, onUploadClick }) => {
         </select>
       </div>
 
-      <div className="pro-card overflow-hidden">
-        <table className="w-full text-left">
+      <div className="pro-card overflow-x-auto">
+        <table className="w-full min-w-[640px] text-left">
           <thead className="bg-slate-50/50">
             <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
               <th className="px-6 py-4">Video Source</th>

@@ -52,12 +52,12 @@ const Results = ({ data, onReset }) => {
       </div>
 
       {/* --- 2. SCREEN ACTIONS (Hidden in PDF) --- */}
-      <div className="flex justify-between items-center mb-8 print:hidden">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 print:hidden">
         <div>
           <h2 className="text-3xl font-black text-slate-800 tracking-tight">Forensic Analysis</h2>
           <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mt-1">System Engine v2.4 Live</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button onClick={onReset} className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all shadow-sm">
             <RefreshCw size={18} /> NEW SCAN
           </button>
@@ -72,7 +72,7 @@ const Results = ({ data, onReset }) => {
         
         <div className="lg:col-span-2 space-y-8">
           {/* VERDICT CARD */}
-          <div className="bg-white p-8 lg:p-10 rounded-[2.5rem] border border-slate-200 shadow-sm relative overflow-hidden print:border-2 print:mb-10">
+          <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 shadow-sm relative overflow-hidden print:border-2 print:mb-10">
             <div className="flex items-center gap-4 mb-6">
               <div className={`p-4 rounded-2xl ${isFake ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}>
                 {isFake ? <AlertTriangle size={32} /> : <ShieldCheck size={32} />}
@@ -82,7 +82,7 @@ const Results = ({ data, onReset }) => {
               </p>
             </div>
             
-            <h3 className={`text-9xl font-black tracking-tighter mb-4 ${isFake ? "text-red-600" : "text-green-600"}`}>
+            <h3 className={`text-7xl sm:text-9xl font-black tracking-tighter mb-4 ${isFake ? "text-red-600" : "text-green-600"}`}>
               {confidence}<span className="text-4xl text-slate-300">%</span>
             </h3>
             
@@ -96,7 +96,7 @@ const Results = ({ data, onReset }) => {
           </div>
 
           {/* ARTIFACT FREQUENCY GRAPH */}
-          <div id="artifact-graph" className="bg-white p-8 lg:p-10 rounded-[2.5rem] border border-slate-200 shadow-sm print:border-2">
+          <div id="artifact-graph" className="bg-white p-6 sm:p-8 lg:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 shadow-sm print:border-2">
             <h4 className="text-xs font-black uppercase tracking-[0.3em] text-slate-900 mb-10 flex items-center gap-2">
               <Activity size={18} className="text-blue-500" /> Artifact Frequency Histogram
             </h4>
@@ -111,7 +111,7 @@ const Results = ({ data, onReset }) => {
         {/* --- 4. AUDIT SIDEBAR --- */}
         <div className="space-y-8 print:mt-12">
           {/* METADATA CARD */}
-          <div className="bg-white p-8 lg:p-10 rounded-[2.5rem] border border-slate-200 shadow-sm print:border-2">
+          <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 shadow-sm print:border-2">
             <h4 className="text-xs font-black uppercase tracking-[0.3em] text-slate-900 mb-8 border-b pb-4">Forensic Specs</h4>
             <div className="space-y-6">
               {[
@@ -132,7 +132,7 @@ const Results = ({ data, onReset }) => {
           </div>
 
           {/* EXPERT REVIEW CARD */}
-          <div id="expert-review" className="p-8 lg:p-10 rounded-[2.5rem] bg-blue-600 text-white relative shadow-xl print:bg-white print:text-slate-900 print:border-2 print:border-slate-200 print:shadow-none">
+          <div id="expert-review" className="p-6 sm:p-8 lg:p-10 rounded-[2rem] sm:rounded-[2.5rem] bg-blue-600 text-white relative shadow-xl print:bg-white print:text-slate-900 print:border-2 print:border-slate-200 print:shadow-none">
             <div className="flex items-center gap-3 mb-4 print:text-blue-600">
                 <UserCheck size={28}/>
                 <h5 className="font-black text-xl mb-0 tracking-tight">Expert Audit</h5>
