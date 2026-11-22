@@ -1,28 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, Video, AlertCircle, RefreshCw } from 'lucide-react';
+import { aiService } from '../api/authService';
+
+const MAX_SIZE_MB = 50;
+const VIDEO_EXT = /\.(mp4|mov|avi|mkv|webm|m4v)$/i;
 
 const UploadView = ({ onAnalysisComplete }) => {
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [slowHint, setSlowHint] = useState(false);
   const [error, setError] = useState('');
 
-  // --- EXACT DUAL-BACKEND PRODUCTION ENVIRONMENT ENDPOINTS ---
-  const AI_ENGINE_BASE_URL = window.location.hostname === 'localhost'
-    ? 'http://127.0.0.1:8000'
-    : 'https://true-trace-ai-1.onrender.com'; // Your verified live FastAPI Engine
-
-  const NODE_AUTH_BASE_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:5000/api'
-    : 'https://true-trace-ai.onrender.com/api'; // Your live Node.js Auth Backend
+  // Start waking the Render AI service as soon as this screen opens
+  useEffect(() => {
+    aiService.wake();
+  }, []);
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type.startsWith('video/')) {
-      setFile(selectedFile);
-      setError('');
-    } else {
-      setError('Please select a valid forensic video file asset.');
+    const selected = e.target.files[0];
+    if (!selected) return;
+    const isVideo = selected.type.startsWith('video/') || VIDEO_EXT.test(selected.name);
+    if (!isVideo) {
+      setFile(null);
+      setError('Please select a valid video file (mp4, mov, avi, mkv, webm).');
+      return;
     }
+    if (selected.size > MAX_SIZE_MB * 1024 * 1024) {
+      setFile(null);
+      setError(`File is larger than ${MAX_SIZE_MB}MB.`);
+      return;
+    }
+    setFile(selected);
+    setError('');
   };
 
   const handleUploadSubmit = async (e) => {
@@ -30,52 +39,20 @@ const UploadView = ({ onAnalysisComplete }) => {
     if (!file) return;
 
     setIsLoading(true);
+    setSlowHint(false);
     setError('');
-
-    // Wrap your binary video inside a multipart payload stream
-    const formData = new FormData();
-    formData.append('file', file);
+    const hintTimer = setTimeout(() => setSlowHint(true), 8000);
 
     try {
-      // PHASE 1: Call your exact FastAPI endpoint (/analyze)
-      const aiResponse = await fetch(`${AI_ENGINE_BASE_URL}/analyze`, {
-        method: 'POST',
-        body: formData, // Browser sets multipart/form-data headers automatically
-      });
-
-      if (!aiResponse.ok) throw new Error('Neural Engine internal pipeline break.');
-      const aiResult = await aiResponse.json();
-
-      // PHASE 2: Mirror the AI findings to MongoDB via your separate Node Auth Backend
-      const token = localStorage.getItem('trueTraceToken');
-      
-      const mongoResponse = await fetch(`${NODE_AUTH_BASE_URL}/reports`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // Protected routes gate check
-        },
-        body: JSON.stringify({
-          filename: file.name,
-          hash: aiResult.hash || `sha256:${Math.random().toString(16).substring(2, 18)}`,
-          prediction: aiResult.prediction,
-          confidence: aiResult.confidence,
-          details: aiResult.details || { resolution: '224x224', duration: '0:10s', frames_analyzed: 120 }
-        })
-      });
-
-      if (!mongoResponse.ok) {
-        console.warn('AI Analysis worked, but log failed to save into MongoDB Atlas.');
-      }
-
-      // PHASE 3: Pass final result payload to App.js to switch view to Results screen
-      onAnalysisComplete(aiResult);
-
+      const result = await aiService.analyze(file);
+      onAnalysisComplete(result); // App.js handles history + optional MongoDB save
     } catch (err) {
-      console.error('Inference Error context logs:', err);
-      setError('System Error: Could not connect to Neural Engine. Ensure Python AI backend is active.');
+      console.error('Inference error:', err);
+      setError(`Analysis failed: ${err.message}`);
     } finally {
+      clearTimeout(hintTimer);
       setIsLoading(false);
+      setSlowHint(false);
     }
   };
 
@@ -95,20 +72,26 @@ const UploadView = ({ onAnalysisComplete }) => {
 
       <form onSubmit={handleUploadSubmit} className="space-y-6">
         <div className="border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center hover:bg-slate-50 transition-all cursor-pointer relative group">
-          <input required type="file" accept="video/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+          <input type="file" accept="video/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
           <div className="flex flex-col items-center justify-center">
             <div className="p-4 bg-slate-50 text-slate-400 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
               {file ? <Video size={32} className="text-blue-500" /> : <Upload size={32} />}
             </div>
-            <p className="text-sm font-black text-slate-700">{file ? file.name : "Drop media file here or browse"}</p>
-            <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-tight">Supports mp4, avi, mov up to 50MB</p>
+            <p className="text-sm font-black text-slate-700">{file ? file.name : 'Drop media file here or browse'}</p>
+            <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-tight">Supports mp4, avi, mov up to {MAX_SIZE_MB}MB</p>
           </div>
         </div>
 
         <button type="submit" disabled={!file || isLoading} className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-100 flex items-center justify-center gap-2 disabled:opacity-40">
           {isLoading ? <RefreshCw className="animate-spin" size={16} /> : null}
-          {isLoading ? "EXECUTING NEURAL SCAN..." : "RUN INTENSITY INFERENCE"}
+          {isLoading ? 'EXECUTING NEURAL SCAN...' : 'RUN INTENSITY INFERENCE'}
         </button>
+
+        {slowHint && (
+          <p className="text-center text-xs font-bold text-slate-400">
+            Waking up the AI engine — the first scan after idle can take up to a minute.
+          </p>
+        )}
       </form>
     </div>
   );

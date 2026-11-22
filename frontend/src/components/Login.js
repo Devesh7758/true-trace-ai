@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import {
   Mail,
   Lock,
-  Globe,
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
@@ -12,6 +11,7 @@ import { authService } from "../api/authService";
 
 const Login = ({
   onLoginSuccess,
+  onCancel,
 }) => {
   const [isSignup, setIsSignup] =
     useState(false);
@@ -57,16 +57,6 @@ const Login = ({
             password
           );
       }
-
-      localStorage.setItem(
-        "trueTraceToken",
-        data.token
-      );
-
-      localStorage.setItem(
-        "trueTraceUser",
-        JSON.stringify(data.user)
-      );
 
       onLoginSuccess(
         data.token,
@@ -117,9 +107,8 @@ const Login = ({
             </h2>
 
             <p className="text-slate-400 font-bold mt-2 tracking-tight italic uppercase text-[10px] tracking-[0.2em]">
-              Forensic
-              Authentication
-              Required
+              Sign in to save reports
+              to your account
             </p>
           </div>
 
@@ -133,27 +122,6 @@ const Login = ({
             onSubmit={handleSubmit}
             className="space-y-4"
           >
-            <button
-              type="button"
-              className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 py-3.5 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm"
-            >
-              <Globe
-                size={20}
-                className="text-blue-500"
-              />
-
-              Continue with SSO
-            </button>
-
-            <div className="flex items-center gap-4 py-4">
-              <div className="flex-1 h-px bg-slate-100"></div>
-
-              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
-                or email
-              </span>
-
-              <div className="flex-1 h-px bg-slate-100"></div>
-            </div>
 
             <div className="space-y-3">
               {isSignup && (
@@ -239,11 +207,11 @@ const Login = ({
               : "New to TrueTrace?"}
 
             <button
-              onClick={() =>
-                setIsSignup(
-                  !isSignup
-                )
-              }
+              type="button"
+              onClick={() => {
+                setIsSignup(!isSignup);
+                setError("");
+              }}
               className="ml-2 text-blue-600 hover:underline"
             >
               {isSignup
@@ -251,6 +219,16 @@ const Login = ({
                 : "Register Now"}
             </button>
           </p>
+
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="block mx-auto mt-4 text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest"
+            >
+              Continue without signing in
+            </button>
+          )}
         </div>
       </div>
     </div>

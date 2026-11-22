@@ -22,9 +22,9 @@ const Results = ({ data, onReset }) => {
     date: new Date().toLocaleDateString(),
     time: new Date().toLocaleTimeString(),
     duration: data.details?.duration || "0:10s",
-    frames: data.details?.frames_analyzed || "120",
+    frames: data.details?.frames_analyzed || data.details?.frames || "—",
     resolution: data.details?.resolution || "224x224",
-    inference: "1.84s",
+    inference: data.details?.inference_speed || data.details?.time || "—",
     hash: data.hash || "f3b8c0e29d41f5a12e992b881"
   };
 
