@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Upload, Video, AlertCircle, RefreshCw } from 'lucide-react';
-import { aiService } from '../api/authService';
+import { aiService } from '../api/aiService';
 
 const MAX_SIZE_MB = 50;
 const VIDEO_EXT = /\.(mp4|mov|avi|mkv|webm|m4v)$/i;
@@ -13,7 +13,7 @@ const UploadView = ({ onAnalysisComplete }) => {
 
   // Start waking the Render AI service as soon as this screen opens
   useEffect(() => {
-    aiService.wake();
+    aiService.health();
   }, []);
 
   const handleFileChange = (e) => {

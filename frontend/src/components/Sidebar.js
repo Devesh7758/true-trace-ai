@@ -1,7 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Home, LayoutDashboard, History, Info, Upload } from 'lucide-react';
+import { aiService } from '../api/aiService';
+
+const STATUS = {
+  checking: { dot: 'bg-amber-400 animate-pulse', label: 'Waking Neural Engine...' },
+  online: { dot: 'bg-green-500 animate-pulse', label: 'Neural Engine Online' },
+  offline: { dot: 'bg-red-500', label: 'Neural Engine Offline' },
+};
 
 const Sidebar = ({ currentView, setCurrentView }) => {
+  const [engine, setEngine] = useState('checking');
+
+  // Ping /health on load (also wakes the Render service) and every 5 minutes
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      const ok = await aiService.health();
+      if (!cancelled) setEngine(ok ? 'online' : 'offline');
+    };
+    check();
+    const timer = setInterval(check, 5 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, []);
+
   const menuItems = [
     { name: 'Home', icon: <Home size={20} /> },
     { name: 'Forensic Upload', icon: <Upload size={20} /> },
@@ -61,8 +85,8 @@ const Sidebar = ({ currentView, setCurrentView }) => {
             System Status
           </p>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-xs font-bold text-slate-700">Neural Engine Active</span>
+            <div className={`w-2 h-2 rounded-full ${STATUS[engine].dot}`}></div>
+            <span className="text-xs font-bold text-slate-700">{STATUS[engine].label}</span>
           </div>
         </div>
       </div>
