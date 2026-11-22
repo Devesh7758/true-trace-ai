@@ -55,7 +55,6 @@ const About = () => {
         </div>
       </div>
       
-      <p className="text-center text-slate-400 text-xs mt-12 font-medium">Developed by Team TrueTrace • 2026</p>
     </div>
   );
 };
