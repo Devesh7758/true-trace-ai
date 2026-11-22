@@ -1,5 +1,6 @@
 import React from 'react';
 import { Zap, Target, Cpu, ArrowRight, Activity } from 'lucide-react';
+import DevBadge from './DevBadge';
 
 const Home = ({ onUploadClick }) => {
   return (
@@ -17,7 +18,7 @@ const Home = ({ onUploadClick }) => {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">Authenticity.</span>
           </h1>
           <p className="text-lg text-slate-400 font-medium mb-10 leading-relaxed">
-            Team Pixel presents TrueTrace: An advanced AI forensic suite designed to detect deepfakes and generative manipulation with surgical precision.
+            TrueTrace is an advanced AI forensic suite designed to detect deepfakes and generative manipulation with surgical precision.
           </p>
           <button 
             onClick={onUploadClick}
@@ -64,9 +65,7 @@ const Home = ({ onUploadClick }) => {
 
       {/* Footer Note */}
       <div className="mt-12 text-center">
-        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-          Secured by Team Pixel Forensic Protocol • 2026
-        </p>
+        <DevBadge size="sm" />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Home from './components/Home';
 import UploadView from './components/Upload';
@@ -6,11 +6,14 @@ import Dashboard from './components/Dashboard';
 import History from './components/History';
 import Results from './components/Results';
 import About from './components/About';
-
-import { Bell, Search } from 'lucide-react';
+import DevBadge from './components/DevBadge';
 
 const HISTORY_KEY = 'trueTraceHistory';
 const MAX_HISTORY = 100;
+
+// One long page: these are the scroll sections, in order
+const SECTIONS = ['Home', 'Forensic Upload', 'Dashboard', 'History', 'About'];
+const sectionId = (name) => `section-${name.toLowerCase().replace(/\s+/g, '-')}`;
 
 const formatDate = (value) =>
   new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -34,9 +37,10 @@ const loadHistory = () => {
 };
 
 function App() {
-  const [currentView, setCurrentView] = useState('Home');
+  const [activeSection, setActiveSection] = useState('Home');
   const [analysisData, setAnalysisData] = useState(null);
   const [history, setHistory] = useState(loadHistory);
+  const mainRef = useRef(null);
 
   useEffect(() => {
     try {
@@ -45,6 +49,30 @@ function App() {
       // storage full or blocked (private mode) — history still works for this visit
     }
   }, [history]);
+
+  // Scroll-spy: highlight whichever section is in the middle band of the viewport
+  useEffect(() => {
+    const root = mainRef.current;
+    if (!root || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length) setActiveSection(visible[0].target.dataset.section);
+      },
+      { root, rootMargin: '-35% 0px -60% 0px', threshold: 0 }
+    );
+    SECTIONS.forEach((name) => {
+      const el = document.getElementById(sectionId(name));
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  // Sidebar / buttons: smooth-scroll to a section ("Results" lives in the upload section)
+  const goTo = useCallback((name) => {
+    const target = name === 'Results' ? 'Forensic Upload' : name;
+    document.getElementById(sectionId(target))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
 
   const handleAnalysisComplete = (data) => {
     const details = normalizeDetails(data.details);
@@ -61,70 +89,59 @@ function App() {
 
     setHistory((prev) => [record, ...prev].slice(0, MAX_HISTORY));
     setAnalysisData({ ...data, details });
-    setCurrentView('Results');
+    goTo('Forensic Upload');
   };
 
-  const renderContent = () => {
-    switch (currentView) {
-      case 'Forensic Upload':
-        return <UploadView onAnalysisComplete={handleAnalysisComplete} />;
-      case 'Dashboard':
-        return <Dashboard history={history} setView={setCurrentView} setAnalysisData={setAnalysisData} />;
-      case 'History':
-        return <History history={history} onUploadClick={() => setCurrentView('Forensic Upload')} />;
-      case 'Results':
-        return <Results data={analysisData} onReset={() => setCurrentView('Forensic Upload')} />;
-      case 'About':
-        return <About />;
-      case 'Home':
-      default:
-        return <Home onUploadClick={() => setCurrentView('Forensic Upload')} />;
-    }
+  const startNewScan = () => {
+    setAnalysisData(null);
+    goTo('Forensic Upload');
+  };
+
+  const sectionContent = {
+    Home: <Home onUploadClick={() => goTo('Forensic Upload')} />,
+    'Forensic Upload': analysisData ? (
+      <Results data={analysisData} onReset={startNewScan} />
+    ) : (
+      <UploadView onAnalysisComplete={handleAnalysisComplete} />
+    ),
+    Dashboard: <Dashboard history={history} setView={goTo} setAnalysisData={setAnalysisData} />,
+    History: <History history={history} onUploadClick={startNewScan} />,
+    About: <About />,
   };
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] font-sans text-slate-900 overflow-hidden selection:bg-blue-100">
-      <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
+      <Sidebar currentView={activeSection} setCurrentView={goTo} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0 z-50">
-          <div className="flex items-center gap-8 flex-1">
-            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{currentView}</h2>
+        <header className="h-16 bg-white/90 backdrop-blur border-b border-slate-200 flex items-center justify-between px-8 shrink-0 z-50">
+          <h2
+            key={activeSection}
+            className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] animate-in fade-in duration-300"
+          >
+            {activeSection}
+          </h2>
 
-            <div className="relative w-full max-w-md hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-              <input
-                type="text"
-                placeholder="Search forensic archives..."
-                className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-100 transition-all outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-5">
-            <div className="relative p-2 text-slate-400 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white">
-                {history.length > 0 ? '1' : '0'}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 border-l border-slate-100 pl-5">
-              <div className="flex-col text-right hidden sm:flex">
-                <span className="text-sm font-bold text-slate-700 leading-none">Team Pixel</span>
-                <span className="text-[10px] font-bold text-blue-500 uppercase tracking-tighter mt-1">
-                  Forensic Console
-                </span>
-              </div>
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-700 text-white rounded-xl flex items-center justify-center font-bold shadow-lg shadow-blue-100">
-                P
-              </div>
-            </div>
-          </div>
+          <DevBadge size="sm" />
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8 bg-[#FBFCFD]">
-          <div className="max-w-[1400px] mx-auto h-full">{renderContent()}</div>
+        <main ref={mainRef} className="flex-1 overflow-y-auto bg-[#FBFCFD] scroll-smooth">
+          <div className="max-w-[1400px] mx-auto px-8">
+            {SECTIONS.map((name) => (
+              <section
+                key={name}
+                id={sectionId(name)}
+                data-section={name}
+                className="min-h-[calc(100vh-4rem)] py-10 border-b border-slate-100 last:border-b-0"
+              >
+                {sectionContent[name]}
+              </section>
+            ))}
+
+            <footer className="py-10 flex justify-center">
+              <DevBadge size="md" />
+            </footer>
+          </div>
         </main>
       </div>
     </div>

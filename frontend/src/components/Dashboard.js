@@ -43,7 +43,7 @@ const Dashboard = ({ history, setView, setAnalysisData }) => {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
         <div>
           <h2 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: 0 }}>Dashboard</h2>
-          <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>System intelligence overview for Team Pixel</p>
+          <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>System intelligence overview</p>
         </div>
         <button onClick={() => setView('Forensic Upload')} style={primaryBtnStyle}>Analyze New Video</button>
       </div>
